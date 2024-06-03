@@ -1,0 +1,25 @@
+
+    <div class="my-3 border-bottom">
+        <div>
+            <h4>프로필 변경</h4>
+        </div>
+    </div>
+    <form th:action="@{/user/profileModify}" th:object="${profileModifyForm}" method="post" enctype="multipart/form-data">
+        <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+        <div th:if="${error}" class="alert alert-danger">
+            <span th:text="${error}"></span>
+        </div>
+        <div class="mb-3">
+            <label for="userNickname" class="form-label">변경할 닉네임</label>
+            <input type="text" th:field="*{userNickname}" class="form-control" id="userNickname">
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">변경할 이메일</label>
+            <input type="email" th:field="*{email}" class="form-control" id="email">
+        </div>
+<!--        <div class="mb-3">-->
+<!--            <label for="profileImage" class="form-label">프로필 이미지 업로드</label>-->
+<!--            <input type="file" th:field="*{profileImage}" class="form-control" id="profileImage">-->
+<!--        </div>-->
+        <button type="submit" class="btn btn-primary">프로필 수정</button>
+    </form>

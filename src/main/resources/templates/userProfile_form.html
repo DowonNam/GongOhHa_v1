@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <title>나의 프로필</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+<!-- 네비게이션 바 -->
+<nav th:replace="~{navbar :: navbarFragment}" class="navbar fixed top-0 z-50 h-12"></nav>
+
+<div class="flex justify-center items-start h-screen mt-16">
+    <div class="flex flex-col gap-4 mt-16 mx-auto w-2/4 border border-gray-300 p-4 rounded-xl">
+        <!-- 프로필 섹션 -->
+        <div class="flex gap-4 items-center">
+<!--            <div class="w-40 h-40 rounded-full overflow-hidden">-->
+<!--                <img th:if="${user.base64EncodedProfileImage != ''}" th:src="'data:image/png;base64,' + ${user.base64EncodedProfileImage}" alt="User's Profile Image" class="w-100 h-100" />-->
+<!--                <img th:if="${user.base64EncodedProfileImage == ''}" src="data:image/png;base64,${user.getBase64EncodedProfileImage()}" alt="User's Profile Image" class="w-100 h-100" />-->
+<!--            </div>-->
+            <div class="flex flex-col gap-4">
+                <h1 sec:authorize="isAuthenticated()" th:text="${#authentication.principal.username}">User Profile</h1>
+                <div class="flex flex-col gap-1">
+                    <p sec:authorize="isAuthenticated()" th:text="${email}">user@example.com</p>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <p sec:authorize="isAuthenticated()" th:text="${userNickname}">User Nickname</p>
+                </div>
+                <div>
+                    <a class="text-decoration-none custom-btn border-0 font-bold" sec:authorize="isAuthenticated()" th:href="@{/user/profileModify}">프로필 수정</a>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <!-- 스케줄 섹션 -->
+        <div>
+            <footer id="calendarFooter" th:replace="~{calendar :: calendarFragment}"></footer>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('toggleCalendar').addEventListener('click', function() {
+            const footer = document.getElementById('calendarFooter');
+            footer.innerHTML = '<div th:replace="~{calendarPersonal :: calendarPersonalFragment}"></div>';
+        });
+    });
+</script>
+</body>
+
+</html>

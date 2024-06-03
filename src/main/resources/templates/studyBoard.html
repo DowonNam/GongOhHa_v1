@@ -1,0 +1,184 @@
+<!-- DaisyUI & Tailwind CSS -->
+<link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<title>나의 공부 일정표</title>
+<body>
+<!-- 네비바 -->
+<nav class="navbar" th:replace="~{navbar :: navbarFragment}"></nav>
+<!-- 달력 및 세부 내용 -->
+<div class="flex flex-col lg:flex-row mt-12 mx-2 lg:mx-10 lg:mb-10">
+    <!-- 타이머 및 스케줄 -->
+    <div class="flex flex-col w-full lg:w-2/3 mt-12 lg:mt-0 mx-2 lg:mx-10 lg:mb-10">
+        <!-- 타이머 섹션 -->
+        <div class="flex-grow place-items-center lg:w-2/3">
+            <div class="timer-container" style="text-align: center; margin-top: 50px;">
+                <div id="timer" class="timer" style="font-size: 48px;">00:00:00</div>
+                <button id="startButton" class="btn">시작</button>
+                <button id="saveTimerButton" class="btn">타이머 저장</button>
+                <button id="resetButton" class="btn">초기화</button>
+            </div>
+            <!-- PersonalSchedule 리스트 -->
+            <table class="table w-full mt-4">
+                <thead>
+                <tr>
+                    <th>타이머</th>
+                    <th>스케줄</th>
+                    <th>총 공부 시간</th>
+                    <th>삭제</th>
+                </tr>
+                </thead>
+                <tbody id="scheduleList">
+                <tr th:each="personalSchedule : ${schedules}" th:data-id="${personalSchedule.id}">
+                    <td>
+                        <img src="https://i.imgur.com/3bGyIY5.png" style="width: 20px; height: 20px; cursor: pointer;" alt="타이머 시작" class="start-timer"/>
+                    </td>
+                    <td th:text="${personalSchedule.subject}">공부 리스트</td>
+                    <td>
+                        <span th:text="${#numbers.formatDecimal(personalSchedule.totalTime / 3600, 2, 0)}">시간</span>
+                        <span th:text="':'"></span>
+                        <span th:text="${#numbers.formatDecimal((personalSchedule.totalTime % 3600) / 60, 2, 0)}">분</span>
+                        <span th:text="':'"></span>
+                        <span th:text="${#numbers.formatDecimal(personalSchedule.totalTime % 60, 2, 0)}">초</span>
+                    </td>
+                    <td>
+                        <form th:action="@{/schedules/delete}" method="post" style="display: inline;">
+                            <input type="hidden" name="userId" th:value="${user.id}"/>
+                            <input type="hidden" name="scheduleId" th:value="${personalSchedule.id}"/>
+                            <button type="submit" class="delete-btn">
+                                <img src="https://i.imgur.com/lrXmEdG.png" style="width: 20px; height: 20px;" alt="삭제"/>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <!-- 스케줄 추가 폼을 포함한 모달 -->
+            <button class="btn btn-sm px-2 py-1" onclick="document.getElementById('my_modal_2').showModal()">스케줄 추가</button>
+            <dialog id="my_modal_2" class="modal">
+                <div class="modal-box">
+                    <h3 class="font-bold text-lg">새 스케줄 추가</h3>
+                    <form action="#" th:action="@{/schedules}" method="post">
+                        <input type="hidden" name="userId" th:value="${userId}">
+                        <input type="text" name="subject" placeholder="새 스케줄 제목" class="input input-bordered w-full mb-2"/>
+                        <button type="submit" class="btn btn-sm">스케줄 저장</button> <!-- Tailwind CSS 클래스 btn-sm 사용 -->
+                    </form>
+                </div>
+                <form method="dialog" class="modal-backdrop">
+                    <button class="btn btn-sm">close</button> <!-- Tailwind CSS 클래스 btn-sm 사용 -->
+                </form>
+            </dialog>
+        </div>
+    </div>
+
+    <div class="divider lg:divider-horizontal"></div>
+    <div class="flex-grow place-items-center lg:w-2/3">
+        <!-- 달력 -->
+        <footer th:replace="~{calendarPersonal :: calendarPersonalFragment}"></footer>
+
+        <!-- 세부내용 -->
+        <div class="flex-grow place-items-center lg:w-2/3">
+        </div>
+    </div>
+</div>
+
+<!-- FullCalendar & Scripts -->
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    let timerInterval;
+    let seconds = 0;
+    let minutes = 0;
+    let hours = 0;
+    let currentScheduleId;
+
+    function startTimer(scheduleId) {
+        stopTimer();
+        currentScheduleId = scheduleId;
+        timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function stopTimer() {
+        clearInterval(timerInterval);
+    }
+
+    function resetTimer() {
+        clearInterval(timerInterval);
+        seconds = 0;
+        minutes = 0;
+        hours = 0;
+        updateTimerDisplay();
+        currentScheduleId = null;
+    }
+
+    function updateTimer() {
+        seconds++;
+        if (seconds === 60) {
+            seconds = 0;
+            minutes++;
+            if (minutes === 60) {
+                minutes = 0;
+                hours++;
+            }
+        }
+        updateTimerDisplay();
+    }
+
+    function updateTimerDisplay() {
+        const timerElement = document.getElementById('timer');
+        timerElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function saveTimerToSchedule() {
+        if (!currentScheduleId) {
+            alert("타이머가 시작되지 않았습니다.");
+            return;
+        }
+        stopTimer(); // 타이머 멈추기
+        const duration = hours * 3600 + minutes * 60 + seconds;
+        fetch('/study-time', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `scheduleId=${currentScheduleId}&duration=${duration}`
+        })
+
+        .then(data => {
+            console.log("타이머 값 저장 성공", data);
+            // 저장이 성공하면 타이머를 멈춘 상태로 유지
+             calendar.addEvent({
+                        title: data.title,
+                        start: data.startDate,
+                        end: data.endDate
+                    });
+
+                    // 입력 필드 초기화 및 이벤트 모달 숨기기
+                    document.getElementById('eventModal').style.display = 'none';
+                    document.getElementById('userCalendar_id').value = '';
+                    document.getElementById('eventTitle').value = '';
+                    document.getElementById('eventStart').value = '';
+                    document.getElementById('eventEnd').value = '';
+        })
+
+    }
+
+    document.querySelectorAll('.start-timer').forEach(function(element) {
+        element.addEventListener('click', function() {
+            const scheduleId = this.closest('tr').dataset.id;
+            startTimer(scheduleId);
+        });
+    });
+
+    document.getElementById('startButton').addEventListener('click', function() {
+        const scheduleId = prompt("스케줄 ID를 입력하세요:");
+        startTimer(scheduleId);
+    });
+
+    document.getElementById('saveTimerButton').addEventListener('click', saveTimerToSchedule);
+    document.getElementById('resetButton').addEventListener('click', resetTimer);
+});
+
+
+</script>
+</body>

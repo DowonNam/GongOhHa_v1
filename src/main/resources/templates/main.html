@@ -1,0 +1,76 @@
+<link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css"/>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+    .navbar {
+        background-color: #f2f2f2;
+    }
+</style>
+<nav th:replace="~{navbar :: navbarFragment}"></nav>
+
+<!--중간 배너-->
+<div class="hero min-h-screen bg-base-200">
+    <div class="hero-content text-center">
+        <div class="max-w-md">
+            <img src="https://i.imgur.com/djvwuQh.png" alt="Logo">
+            <h1 class="text-5xl font-bold">오.공.하</h1>
+            <p class="py-6">공부를 하고 싶은 사람들이 공부를 위해 모인 곳</p>
+
+            <!-- DRAWER 부분 시작 -->
+            <div class="drawer drawer-end">
+                <input id="my-drawer-4" type="checkbox" class="drawer-toggle" />
+                <div class="drawer-content">
+                    <!-- Page content here -->
+                    <label for="my-drawer-4" class="drawer-button btn btn-primary">공부 시작하기</label>
+                </div>
+                <div class="drawer-side">
+                    <label for="my-drawer-4" aria-label="close sidebar" class="drawer-overlay"></label>
+                    <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
+                        <!-- Sidebar content here -->
+                        <li><a></a></li>
+                        <li><a></a></li>
+                        <li><a></a></li>
+                        <li><a th:href="@{user/signup}">회원가입</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" sec:authorize="isAnonymous()" th:href="@{/user/login}">로그인</a>
+                            <a class="nav-link" sec:authorize="isAuthenticated()" th:href="@{/user/logout}">로그아웃</a>
+                        </li>
+                        <li><a th:href="@{userCalendar/5}">시험 일정 달력</a></li>
+                        <li><a sec:authorize="isAuthenticated()" th:href="@{|/user/studyBoard/${#authentication.principal.username}|}">나의 공부 일정</a></li>
+                        <li><a sec:authorize="isAuthenticated()" th:href="@{/group/list}">그룹 리스트</a></li>
+<!--                        <li>-->
+<!--                            <details open>-->
+<!--                                <summary>게시판</summary>-->
+<!--                                <ul>-->
+<!--                                    <li>-->
+<!--                                        <details open>-->
+<!--                                            <summary>공부 게시판</summary>-->
+<!--                                            <ul>-->
+<!--                                                <li><a th:href="@{/question/list}">질문 게시판</a></li>-->
+<!--                                                <li><a th:href="@{/question/list}">자료 공유 게시판</a></li>-->
+<!--                                            </ul>-->
+<!--                                        </details>-->
+<!--                                    </li>-->
+<!--                                    <li>-->
+<!--                                        <details open>-->
+<!--                                            <summary>자유 게시판</summary>-->
+<!--                                            <ul>-->
+<!--                                                <li><a>Submenu 1</a></li>-->
+<!--                                                <li><a>Submenu 2</a></li>-->
+<!--                                            </ul>-->
+<!--                                        </details>-->
+<!--                                    </li>-->
+<!--                                </ul>-->
+<!--                            </details>-->
+<!--                        </li>-->
+                        <li><a></a></li>
+                    </ul>
+                </div>
+            </div>
+            <!-- DRAWER 부분 끝 -->
+        </div>
+    </div>
+</div>
+
+<!--풋화면-->
+<footer th:replace="~{footer :: footerFragment}"></footer>
