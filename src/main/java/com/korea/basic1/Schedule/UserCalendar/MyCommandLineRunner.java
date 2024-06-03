@@ -13,6 +13,8 @@ import java.util.Optional;
 @Component
 public class MyCommandLineRunner implements CommandLineRunner {
 
+
+    // 수정 필요
     @Autowired
     private CalendarRepository calendarRepository;
 
